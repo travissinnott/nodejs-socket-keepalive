@@ -1,5 +1,5 @@
 {
-  "name": "node-socket-keepalive-test",
+  "name": "node-socket-keepalive",
   "version": "1.0.0",
   "description": "Simple socket server and client for testing socket keepalive behavior.",
   "main": "index.js",
@@ -12,8 +12,12 @@
     "tcp",
     "keepalive"
   ],
-  "author": "Travis Sinnott",
-  "license": "ISC",
+  "author": "Travis Sinnott <travis.sinnott@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/travissinnott/nodejs-socket-keepalive.git"
+  },
   "dependencies": {
     "minimist": "^1.1.0"
   }
