@@ -1,15 +1,19 @@
 var args = require("minimist")(process.argv.slice(2));
 var default_port = 7654;
 
+/* Start server if listen parameter is specified */
 if (args.l || args.listen) {
-	var server_port = parseInt(args.l) || default_port;
 	var server = require("./server")({
-		port: server_port, 
-		keepalive:parseInt(args.k || args.keepalive) || false
+		port: args.l || args.listen || default_port, 
+		keepalive: args.k || args.keepalive
 	});
 }
 
+/* Connect to remote server if host specified */
 if (args._.length > 0) {
-	var port = parseInt(args.p) || default_port;
-	console.log("Connecting to "+args._[0]+" port "+port);
+	var client = require("./client")({
+		host: args._[0],
+		port: args.p || args.port || default_port,
+		keepalive: args.k || args.keepalive
+	});
 }

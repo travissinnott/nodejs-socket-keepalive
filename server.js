@@ -22,7 +22,7 @@ module.exports = function(opts){
 			log.info("client disconnected");
 		});
 		socket.on("timeout", function(){
-			log.warn("client timeout!");
+			log.warn("timeout!");
 		});
 		socket.on("close", function(had_error){
 			log.warn({"had_error": had_error}, "socket closed!");
@@ -54,8 +54,6 @@ module.exports = function(opts){
 			log.info({keepalive: opts.keepalive}, 
 				"Will attempt to keep connection alive!");
 			socket.setKeepAlive(true, opts.keepalive);
-		} else {
-			console.log(opts);
 		}
 
 	});
