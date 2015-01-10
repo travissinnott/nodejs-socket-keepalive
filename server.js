@@ -1,6 +1,6 @@
 var net = require("net");
 var bunyan = require("bunyan");
-var log = bunyan.createLogger({name: "server"});
+var log = bunyan.createLogger({name: "server", level: "debug"});
 
 module.exports = function(opts){
 	opts = opts || {};
@@ -36,7 +36,7 @@ module.exports = function(opts){
 		// Send time every 250ms
 		var running = setInterval(function(){
 			socket.write((new Date()).getTime().toString());
-		}, 250);
+		}, 500);
 
 		// Stop sending time after 10s
 		setTimeout(function(){

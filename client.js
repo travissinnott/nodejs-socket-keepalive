@@ -1,6 +1,6 @@
 var net = require("net");
 var bunyan = require("bunyan");
-var log = bunyan.createLogger({name: "client"});
+var log = bunyan.createLogger({name: "client", level: "debug"});
 
 module.exports = function(opts){
 	opts = opts || {};
@@ -15,7 +15,8 @@ module.exports = function(opts){
 	});
 
 	client.on("data", function(data){
-		log.debug({"data":data}, "data from server");
+		log.debug("data from server");
+		log.trace({"data":data.toString()});
 	});
 	client.on("end", function(){
 		log.info("connection ended.");
