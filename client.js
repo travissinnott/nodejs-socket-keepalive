@@ -6,12 +6,22 @@ module.exports = function(opts){
 	opts = opts || {};
 	opts.host = opts.host || "localhost";
 	opts.port = parseInt(opts.port) || 7654;
-	opts.keepalive = parseInt(opts.keepalive) || false;
+	opts.keepalive = false || parseInt(opts.keepalive);
 
 	var client = net.connect(opts, function(){
+		if (false !== opts.keepalive) {
+			log.info({keepalive: opts.keepalive}, 
+				"Will attempt to keep connection alive!");
+			client.setKeepAlive(true, 0); //, opts.keepalive);
+		}
+
 		// 'connect' listener
 		log.info(opts, "connected.");
 		client.write("hello");
+	});
+
+	client.on("connect", function(){
+		log.info("Other connect listener");
 	});
 
 	client.on("data", function(data){
@@ -32,13 +42,7 @@ module.exports = function(opts){
 	});
 
 	// Timeout if no communication for 3 seconds
-	client.setTimeout(1000);
-
-	if (opts.keepalive) {
-		log.info({keepalive: opts.keepalive}, 
-			"Will attempt to keep connection alive!");
-		client.setKeepAlive(true, opts.keepalive);
-	}
+	//client.setTimeout(3000);
 
 	return client;
 }
