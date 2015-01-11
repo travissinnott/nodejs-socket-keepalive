@@ -4,7 +4,7 @@ This project was created to explore the behavior of the setKeepAlive() option on
 
 ## Backstory
 
-There was once a bizarre and foreign network that was oddly unreliable. Inexplicable silent connection loss made it difficult to detect connection failure on low-traffic TCP socket.  Humans could smell failure before the software!  What were we to do?
+There was once a bizarre and foreign network that was oddly unreliable. Inexplicable silent connection failure was difficult to detect on a low-traffic TCP socket.  Humans could smell failure before the software!  What were we to do?
 
 The IETF to the rescue with RFC 1122 Section 4.2.3.6: TCP Keep-Alives! 
 
