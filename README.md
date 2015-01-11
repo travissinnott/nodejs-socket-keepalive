@@ -8,7 +8,7 @@ There was once a bizarre foreign network that was oddly unreliable. Inexplicable
 
 The IETF to the rescue with RFC 1122 Section 4.2.3.6: TCP Keep-Alives! 
 
-Alas, Node.js, as with many programming languages, only allows the developer to turn it on or off, and leaves all configuration and control to the underlying OS.  RFC1122 fails to define requirements, so every OS has different options and bahavior.
+Alas, Node.js, as with many programming languages, only allows the developer to turn it on or off, and leaves all configuration and control to the underlying OS.  RFC1122 fails to define requirements, so every OS has different options and behavior.
 
 # Notes using Keep-Alive with Node.js on Linux
 
