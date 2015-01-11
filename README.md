@@ -9,7 +9,9 @@ One of my company's production nodejs applications mysteriously stops receiving 
 ## TODO
 
 - [ ] Run additional tests using wireshark on client and server to figure out whats actually happening
-
+- [ ] Add script for running
+- [ ] Add command line help
+- [ ] Document basic use
 
 # Test 1
 
