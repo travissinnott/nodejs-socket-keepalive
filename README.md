@@ -1,24 +1,59 @@
 # nodejs-socket-keepalive
 
-Simple socket server and client for testing socket keepalive behavior.
+This project was created to explore the behavior of the setKeepAlive() option on sockets in Node.js.  Use the server and client to test KeepAlive behavior from both ends.  Use different machines and/or firewall rules to simulate network failure. 
 
-## Why?
+## Backstory
 
-One of my company's production nodejs applications mysteriously stops receiving data from a remote service, without emitting an error or closing the connection.  The hypothosis is that an intermediary firewall is interfering with the connection after a period of inactivity, but the client (nodejs) never detects the broken connection.  Can the keepalive option be used to detect the broken link and restablish the connection?
+There was once a bizarre and foreign network that was oddly unreliable. Inexplicable silent connection loss made it difficult to detect connection failure on low-traffic TCP socket.  Humans could smell failure before the software!  What were we to do?
 
-## TODO
+The IETF to the rescue with RFC 1122 Section 4.2.3.6: TCP Keep-Alives! 
 
-- [ ] Run additional tests using wireshark on client and server to figure out whats actually happening
+Alas, Node.js, as with many programming languages, only allows the developer to turn it on or off, and leaves all configuration and control to the underlying OS.  RFC1122 fails to define requirements, so every OS has different options and bahavior.
+
+# Notes using Keep-Alive with Node.js on Linux
+
+## setKeepAlive() calls the underlying OS socket KEEPALIVE behavior.
+
+TCP Keep-Alive behavior is implemented at the OS layer.  Node.js will trigger this behavior when `setKeepAlive(true)` is called on a socket object created from the `net.connect()` call.
+
+## Linux Keep-Alive Configuration
+
+Read the HOWTO http://tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html
+
+
+## setKeepAlive() ignores initialDelay if called before connecting.
+
+Example: Set KeepAlive on the socket after 5000ms of inactivity.
+
+```
+var socket = net.connect(opts, function(){
+    // 'connect' listener
+	socket.setKeepAlive(true, 5000);
+	socket.write("hello");
+});
+```
+
+Incorrect:
+
+```
+var socket = net.connect(opts, function(){
+    // 'connect' listener
+	socket.write("hello");
+});
+socket.setKeepAlive(true, 5000);
+```
+
+This will still kick in the keepalive bahavior, but using a default initialDelay of 30 seconds.
+
+
+# TODO
+
 - [ ] Add script for running
 - [ ] Add command line help
 - [ ] Document basic use
 
-# Test 1
 
-In this test, the server was configured to continuously send out data (timeout was disabled), and the client was run with a keepalive setting of 2000 miliseconds.  After blocking traffic, it took approximitly 12 minutes for the client to emit the ETIMEDOUT error, and 13 minutes for the server to emit ECONNRESET.  I suspect this is because I added the second drop rule (drop incoming packets from client) about 45 seconds after the first rule.
-
-
-## Firewall Rules
+# Simulating network failure with iptables
 
 These rules were added to the server after starting the server and client.
 
@@ -27,44 +62,8 @@ $ sudo iptables -A OUTPUT -p tcp --sport 7654 -j DROP
 $ sudo iptables -A INPUT -p tcp --dport 7654 -j DROP
 ```
 
-## Server:
+# References
 
-```
-$ node index.js -l | bunyan -l 10
-[2015-01-10T22:17:09.741Z]  INFO: server/13217 on elemos: listening (port=7654, keepalive=false)
-[2015-01-10T22:17:13.206Z]  INFO: server/13217 on elemos: client connected
-[2015-01-10T22:17:13.210Z]  INFO: server/13217 on elemos: what? (data=hello)
-[2015-01-10T22:18:22.398Z]  INFO: server/13217 on elemos: client disconnected
-[2015-01-10T22:18:22.400Z]  WARN: server/13217 on elemos: socket closed! (had_error=false)
-[2015-01-10T22:18:34.608Z]  INFO: server/13217 on elemos: client connected
-[2015-01-10T22:18:34.613Z]  INFO: server/13217 on elemos: what? (data=hello)
-^Ctravis@elemos:~/projects/nodejs-socket-keepalive$ node index.js -l | bunyan -l 10
-[2015-01-10T22:19:04.282Z]  INFO: server/13664 on elemos: listening (port=7654, keepalive=false)
-^[[A
-[2015-01-10T22:19:42.997Z]  INFO: server/13664 on elemos: client connected
-[2015-01-10T22:19:43.000Z]  INFO: server/13664 on elemos: what? (data=hello)
-[2015-01-10T22:36:13.823Z] ERROR: server/13664 on elemos: 
-    error: {
-      "code": "ECONNRESET",
-      "errno": "ECONNRESET",
-      "syscall": "read"
-    }
-[2015-01-10T22:36:13.824Z]  WARN: server/13664 on elemos: socket closed! (had_error=true)
-```
-
-## Client:
-
-```
-$ node index.js 10.9.8.6 -k 2000 | bunyan -l 10
-[2015-01-10T22:23:12.651Z] DEBUG: client/9066 on dev2: data from server
-[2015-01-10T22:23:13.153Z] DEBUG: client/9066 on dev2: data from server
-[2015-01-10T22:23:13.654Z] DEBUG: client/9066 on dev2: data from server
-[2015-01-10T22:23:14.655Z]  WARN: client/9066 on dev2: timeout!
-[2015-01-10T22:35:30.895Z] ERROR: client/9066 on dev2: 
-    error: {
-      "code": "ETIMEDOUT",
-      "errno": "ETIMEDOUT",
-      "syscall": "read"
-    }
-[2015-01-10T22:35:30.896Z]  WARN: client/9066 on dev2: connection closed! (had_error=true)
-```
+https://tools.ietf.org/html/rfc1122#section-4.2.3.6
+https://tools.ietf.org/html/rfc1122#page-101
+https://github.com/joyent/node/issues/4109#issuecomment-9404446
